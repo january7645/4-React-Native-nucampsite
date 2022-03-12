@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { Text, View, ScrollView, FlatList,
         Modal, Button, StyleSheet,
-    Alert, PanResponder } from 'react-native';
+    Alert, PanResponder, Share } from 'react-native';
 import { Card, Icon, Input, Rating } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
 import { postFavorite, postComment } from '../redux/ActionCreators';
 import * as Animatable from 'react-native-animatable';
+
 
 const mapStateToProps = state => {
     return {
@@ -24,10 +25,12 @@ const mapDispatchToProps = {
 function RenderCampsite(props) {
 
     const {campsite} = props;
-// Exercise: Gestures part 2 //
-    const view = React.createRef(); 
 
+//    handleViewRef = ref => this.view = ref;
+    
+    const view = React.createRef(); 
     const recognizeDrag = ({dx}) => (dx < -200) ? true : false;
+    const recognizeComment = ({dx}) => (dx > 200) ? true: false;
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
@@ -55,11 +58,22 @@ function RenderCampsite(props) {
                         }
                     ],
                     { cancelable: false }
-                );
+                )
+            } else if (recognizeComment(gestureState)) {
+                props.onShowModal();
             }
             return true;
         }
     });
+    const shareCampsite = (title, messge, url) => {
+        Share.share({
+            title: title,
+            message: `${title}: ${message} ${url}`,
+            url: url
+        },{
+            dialogTitle: 'Share' + title
+        });
+    };
 // Exercise: Gestures part 2 //
     if (campsite) {
         return (
@@ -94,8 +108,18 @@ function RenderCampsite(props) {
                             reverse
                             onPress={() => props.onShowModal()}
                             />
+                         <Icon
+                            name={'share'}
+                            type='font-awesome'
+                            color='#5637DD'
+                            style={styles.cardItem}
+                            raised
+                            reverse
+                            onPress={() => shareCampsite(campsite.name, campsite.description, baseUrl + campsiteId.image)}
+                            />
+                    
+                    {/* end of adding share */}
                     </View>
-                    {/* end of adding the pencil icon */}
                 </Card>
             </Animatable.View>
         );
@@ -115,23 +139,25 @@ function RenderComments({comments}) {
                     startingValue={item.rating}
                     style={{ alignItems: 'flex-start', paddingVertical: '5%'}}
                     />
-                {/* <Text style={{fontSize: 12}}>{item.rating} Stars</Text> */}
+                 <Text style={{fontSize: 12}}>{item.rating} Stars</Text> 
                 <Text style={{fontSize: 12}}>{`-- ${item.author}, ${item.date}`}</Text>
             </View>
         );
     };
 
-    return (
-        <Animatable.View animation='fadeInUp' duration={2000} delay={1000}>
-            <Card title='Comments'>
-                <FlatList
-                    data={comments}
-                    renderItem={renderCommentItem}
-                    keyExtractor={item => item.id.toString()}
-                />
-            </Card>
-        </Animatable.View>
-    );
+        if (comments) {
+        return (
+            <Animatable.View animation='fadeInUp' duration={2000} delay={1000}>
+                <Card title='Comments'>
+                    <FlatList
+                        data={comments}
+                        renderItem={renderCommentItem}
+                        keyExtractor={item => item.id.toString()}
+                    />
+                </Card>
+            </Animatable.View>
+        );
+    }
 }
 
 
@@ -159,10 +185,11 @@ class CampsiteInfo extends Component {
 
     resetForm() {
         this.setState({
+            campers: 1,
             rating: 5,
             author: '',
             text: '',
-            showModal: false,
+            showModal: false
         });
     }
 // this is where the Modal ends //
@@ -186,6 +213,7 @@ markFavorite(campsiteId) {
                     onShowModal={() => this.toggleModal()}
                 />
                 <RenderComments comments={comments} />
+
                 <Modal
                     animationType={'slide'}
                     transparent={false}
