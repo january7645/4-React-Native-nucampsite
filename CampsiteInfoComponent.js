@@ -29,14 +29,16 @@ function RenderCampsite(props) {
 //    handleViewRef = ref => this.view = ref;
     
     const view = React.createRef(); 
+
     const recognizeDrag = ({dx}) => (dx < -200) ? true : false;
     const recognizeComment = ({dx}) => (dx > 200) ? true: false;
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: () => {
-            view.current.rubberBand(1000)
-            .then(endState => console.log(endState.finished ? 'finished' : 'canceled'));
+            view.current
+                .rubberBand(1000)
+                .then(endState => console.log(endState.finished ? 'finished' : 'canceled'));
         },
         onPanResponderEnd: (e, gestureState) => {
             console.log('pan responder end', gestureState);
@@ -65,7 +67,7 @@ function RenderCampsite(props) {
             return true;
         }
     });
-    const shareCampsite = (title, messge, url) => {
+    const shareCampsite = (title, message, url) => {
         Share.share({
             title: title,
             message: `${title}: ${message} ${url}`,
@@ -74,6 +76,7 @@ function RenderCampsite(props) {
             dialogTitle: 'Share' + title
         });
     };
+
 // Exercise: Gestures part 2 //
     if (campsite) {
         return (
@@ -99,7 +102,7 @@ function RenderCampsite(props) {
                             onPress={() => props.favorite ? 
                                 console.log('Already set as a favorite') : props.markFavorite()}
                     />
-                {/* this is where I add the pencil icon // */}
+               
                         <Icon
                             name={'pencil'}
                             type='font-awesome'
@@ -118,7 +121,6 @@ function RenderCampsite(props) {
                             onPress={() => shareCampsite(campsite.name, campsite.description, baseUrl + campsiteId.image)}
                             />
                     
-                    {/* end of adding share */}
                     </View>
                 </Card>
             </Animatable.View>
