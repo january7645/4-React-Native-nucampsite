@@ -12,7 +12,7 @@ import { View, Platform, StyleSheet, Text, ScrollView, Image,
   Alert, ToastAndroid } from 'react-native';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator, DrawerItems } from 'react-navigation-drawer';
-import { createAppContainer } from 'react-navigation';
+//import { createAppContainer } from 'react-navigation';
 import { Icon } from 'react-native-elements';
 import SafeAreaView from 'react-native-safe-area-view';
 import { connect } from 'react-redux';
@@ -85,7 +85,7 @@ const AboutNavigator = createStackNavigator(
         About: { screen: About },
     },
     {
-      defaultNavigationOptions: ({navigation}) => ({
+      navigationOptions: ({navigation}) => ({
         headerStyle: {
           backgroundColor: '#5637DD',
         },
@@ -108,7 +108,7 @@ const ContactNavigator = createStackNavigator(
       Contact: { screen: Contact },
     },
     {
-      defaultNavigationOptions: ({navigation}) => ({
+      navigationOptions: ({navigation}) => ({
         headerStyle: {
           backgroundColor: '#5637DD',
         },
@@ -131,7 +131,7 @@ const ContactNavigator = createStackNavigator(
       Reservation: { screen: Reservation },
     },
     {
-      defaultNavigationOptions: ({navigation}) => ({
+      navigationOptions: ({navigation}) => ({
         headerStyle: {
           backgroundColor: '#5637DD',
         },
@@ -154,7 +154,7 @@ const ContactNavigator = createStackNavigator(
       Favorites: { screen: Favorites },
     },
     {
-      defaultNavigationOptions: ({navigation}) => ({
+      navigationOptions: ({navigation}) => ({
         headerStyle: {
           backgroundColor: '#5637DD',
         },
@@ -177,7 +177,7 @@ const ContactNavigator = createStackNavigator(
       Login: { screen: Login },
     },
     {
-      defaultNavigationOptions: ({navigation}) => ({
+      navigationOptions: ({navigation}) => ({
         headerStyle: {
           backgroundColor: '#5637DD',
         },
@@ -322,7 +322,7 @@ const MainNavigator = createDrawerNavigator(
     }
 );
 
-const AppNavigator = createAppContainer(MainNavigator);
+// const AppNavigator = createAppContainer(MainNavigator);
 
 class Main extends Component {
 
@@ -332,16 +332,25 @@ class Main extends Component {
       this.props.fetchPromotions();
       this.props.fetchPartners();
 
-      NetInfo.fetch().then(connectionInfo => {
-        (Platform.OS === 'ios')
-          ? Alert.alert('Initial Network Connectivity Type:', connectionInfo.type)
-          : ToastAndroid.show('Initial Network Connectivity Type: ' +
-          connectionInfo.type, ToastAndroid.LONG);
-      });
+//      NetInfo.fetch().then(connectionInfo => {
+//        (Platform.OS === 'ios')
+//          ? Alert.alert('Initial Network Connectivity Type:', connectionInfo.type)
+//          : ToastAndroid.show('Initial Network Connectivity Type: ' +
+//          connectionInfo.type, ToastAndroid.LONG);
+//      });
+      this.showNetInfo();
 
       this.unsubscribeNetInfo = NetInfo.addEventListener(connectionInfo => {
         this.handleConnectivityChange(connectionInfo);
       });
+    }
+
+    
+    async showNetInfo () {
+      let connectInfo = await NetInfo.fetch((Platform.OS === 'ios') ?
+        Alert.alert('Initial Network Connectivity Type:', connectionInfo.type)
+        : ToastAndroid.show('Initial Network Connectivity Type: ' + 
+        connectInfo.type, ToasAndroid.LONG))
     }
 
     componentWillUnmount() {
@@ -374,9 +383,10 @@ class Main extends Component {
           <View 
               style={{
                   flex: 1,
-                  paddingTop: Platform.OS === 'ios' ? 0 : Constants.statusBarHeight
-                  }}>
-              <AppNavigator />
+                  paddingTop: Platform.OS === 'ios' ? 0 : Expo.Constants.statusBarHeight
+                  }}
+                  >
+                    <MainNavigator />
            </View>
       );
   }
